@@ -1,6 +1,6 @@
 {
 	"name": "create-zaf-app",
-	"version": "0.0.1",
+	"version": "0.0.4",
 	"description": "Bootstrap your ZAF application",
 	"keywords": [],
 	"author": "oleggulevskyy@gmail.com",
@@ -15,6 +15,6 @@
 	"goBinary": {
 		"name": "create-zaf-app",
 		"path": "./bin",
-		"url": "https://github.com/OlegGulevskyy/create-zaf-app/releases/download/v{{version}}/create-zaf-app_{{version}}_{{platform}}_{{arch}}.tar.gz"
+		"url": "https://github.com/OlegGulevskyy/create-zaf-app/releases/download/v{{version}}/create-zaf-app_{{platform}}_{{arch}}.tar.gz"
 	}
 }
