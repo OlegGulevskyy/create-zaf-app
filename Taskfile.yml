@@ -1,0 +1,10 @@
+version: '3'
+
+tasks:
+  release:
+    cmds:
+      - goreleaser release --clean
+
+  publish-npm:
+    cmds:
+      - cd ./npm && npm publish && cd -
