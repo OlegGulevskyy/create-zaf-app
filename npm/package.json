@@ -1,0 +1,20 @@
+{
+	"name": "create-zaf-app",
+	"version": "0.0.1",
+	"description": "Bootstrap your ZAF application",
+	"keywords": [],
+	"author": "oleggulevskyy@gmail.com",
+	"license": "ISC",
+	"dependencies": {
+		"@go-task/go-npm": "^0.1.17"
+	},
+	"scripts": {
+		"postinstall": "go-npm install",
+		"preuninstall": "go-npm uninstall"
+	},
+	"goBinary": {
+		"name": "command-name",
+		"path": "./bin",
+		"url": "https://github.com/OlegGulevskyy/create-zaf-app/releases/download/v{{version}}/create-zaf-app_{{version}}_{{platform}}_{{arch}}.tar.gz"
+	}
+}
