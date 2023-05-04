@@ -13,7 +13,7 @@
 		"preuninstall": "go-npm uninstall"
 	},
 	"goBinary": {
-		"name": "command-name",
+		"name": "create-zaf-app",
 		"path": "./bin",
 		"url": "https://github.com/OlegGulevskyy/create-zaf-app/releases/download/v{{version}}/create-zaf-app_{{version}}_{{platform}}_{{arch}}.tar.gz"
 	}
