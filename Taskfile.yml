@@ -5,6 +5,31 @@ tasks:
     cmds:
       - goreleaser release --clean
 
-  publish-npm:
+  patch:
+    dir: npm
     cmds:
-      - cd ./npm && npm publish && cd -
+      - npm version patch
+      - git add *;
+      - git commit -m "{{ (split " " .CLI_ARGS)._0 }}"
+
+
+  minor:
+    dir: npm
+    cmds:
+      - npm version minor
+      - git add *;
+      - git commit -m "{{ (split " " .CLI_ARGS)._0 }}"
+
+
+  major:
+    dir: npm
+    cmds:
+      - npm version major
+      - git add *;
+      - git commit -m "{{ (split " " .CLI_ARGS)._0 }}"
+
+  publish-npm:
+    dir:
+      npm
+    cmds:
+      - npm publish
