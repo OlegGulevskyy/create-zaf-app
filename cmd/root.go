@@ -25,8 +25,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var cfgFile string
@@ -34,16 +34,159 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "create-zaf-app",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Bootstrap your next ZAF Zendesk application",
+	Long:  `Creates a bootstraped Zendesk application for Support locations, with a framework of your choice.`,
+	Run:   createProject,
+}
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+type Project struct {
+	Name            string
+	Framework       string
+	ZendeskLocation string
+	Tailwind        bool
+	Debug           bool
+
+	selectedListItem  string
+	selectedInputItem string
+}
+
+func (p *Project) resetSelectedListItem() {
+	p.selectedListItem = ""
+}
+
+func (p *Project) resetSelectedInputItem() {
+	p.selectedInputItem = ""
+}
+
+func createProject(cmd *cobra.Command, args []string) {
+	proj := Project{}
+	name, err := cmd.Flags().GetString("name")
+	if err != nil {
+		panic(err)
+	}
+
+	framework, err := cmd.Flags().GetString("framework")
+	if err != nil {
+		panic(err)
+	}
+
+	location, err := cmd.Flags().GetString("location")
+	if err != nil {
+		panic(err)
+	}
+
+	tailwind, err := cmd.Flags().GetBool("tailwind")
+	if err != nil {
+		panic(err)
+	}
+
+	debug, err := cmd.Flags().GetBool("debug")
+	if err != nil {
+		panic(err)
+	}
+
+	proj.Name = name
+	proj.Framework = framework
+	proj.ZendeskLocation = location
+	proj.Tailwind = tailwind
+	proj.Debug = debug
+
+	// if any of the flags are set, skip the prompts, otherwise prompt the user
+	err = createPrompts(&proj)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Project name: ", proj.Name)
+	fmt.Println("Project framework: ", proj.Framework)
+	fmt.Println("Project location: ", proj.ZendeskLocation)
+	fmt.Println("Project tailwind: ", proj.Tailwind)
+	fmt.Println("Project debug: ", proj.Debug)
+}
+
+func (p *Project) promptZendeskLocation() {
+	p.promptList(
+		"Where would you like your application to run?",
+		[]list.Item{
+			item("Ticket sidebar"),
+			item("New ticket sidebar"),
+			item("Organization sidebar"),
+			item("User sidebar"),
+			item("Top bar"),
+			item("Nav bar"),
+			item("Modal"),
+			item("Ticket editor"),
+			item("Background"),
+		},
+		"You chose: %s! No problems 💪\n",
+	)
+	p.ZendeskLocation = p.selectedListItem
+	p.resetSelectedListItem()
+}
+
+func (p *Project) promptName() {
+	p.promptInput(
+		promptInputProps{
+			placeholder: "my-zendesk-app",
+			title:       "What would you like to name your project?",
+		},
+	)
+	p.Name = p.selectedInputItem
+	p.resetSelectedInputItem()
+}
+
+func (p *Project) promptFramework() {
+	p.promptList(
+		"Which framework would you like to use?",
+		[]list.Item{
+			item("react"),
+			item("react-ts"),
+			item("react-swc"),
+			item("react-swc-ts"),
+			item("vue"),
+			item("vue-ts"),
+			item("svelte"),
+			item("svelte-ts"),
+		},
+		"Choosen one: %s! Almost over 🔥\n",
+	)
+	p.Framework = p.selectedListItem
+	p.resetSelectedListItem()
+}
+
+func (p *Project) promptTailwind() {
+	p.promptList(
+		"Would you like to use Tailwind CSS?",
+		[]list.Item{
+			item("Yes"),
+			item("No"),
+		},
+		"Answered: %s! 🎉\n",
+	)
+	p.Tailwind = p.selectedListItem == "Yes"
+	p.resetSelectedListItem()
+}
+
+func createPrompts(p *Project) error {
+	// prompt user to define projects name
+	if p.Name == "" {
+		p.promptName()
+	}
+
+	if p.ZendeskLocation == "" {
+		p.promptZendeskLocation()
+	}
+
+	// prompt user which framework to use
+	if p.Framework == "" {
+		p.promptFramework()
+	}
+
+	if p.Tailwind == false {
+		p.promptTailwind()
+	}
+
+	return nil
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -56,39 +199,9 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.create-zaf-app.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
-
-		// Search config in home directory with name ".create-zaf-app" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigType("yaml")
-		viper.SetConfigName(".create-zaf-app")
-	}
-
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
-	}
+	rootCmd.Flags().StringP("name", "n", "", "Name of the project")
+	rootCmd.Flags().StringP("framework", "f", "", "Frontend framework to use")
+	rootCmd.Flags().StringP("location", "l", "", "Location of Zendesk App")
+	rootCmd.Flags().BoolP("tailwind", "t", false, "Use Tailwind CSS")
+	rootCmd.Flags().Bool("debug", false, "Debug mode")
 }
