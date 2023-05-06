@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
+	"strings"
 
 	"github.com/OlegGulevskyy/create-zaf-app/internal/options"
 	fsutils "github.com/OlegGulevskyy/create-zaf-app/pkg/fs-utils"
@@ -30,18 +32,51 @@ func Create(options *options.Project) {
 	executeViteCli(options)
 }
 
+func npmVersion() string {
+	cmd := exec.Command("npm", "-v")
+	cmd.Dir = "./"
+	out, err := cmd.Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(out)
+}
+
 func executeViteCli(opts *options.Project) {
 	// if pkg manager is npm, we postfix Cli with @latest
 	viteCliEntryPoint := "vite"
 	if opts.PackageManager == "npm" {
 		viteCliEntryPoint = "vite@latest"
 	}
-	cmd := exec.Command(opts.PackageManager, "create", viteCliEntryPoint, "addon", "--template", opts.Framework)
+
+	viteCliargs := []string{
+		opts.PackageManager,
+		"create",
+		viteCliEntryPoint,
+		"addon",
+	}
+
+	if opts.PackageManager == "npm" {
+		npmV := npmVersion()
+		v := strings.Split(npmV, ".")[0]
+		vNum, err := strconv.ParseInt(v, 10, 32)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if vNum >= 7 {
+			viteCliargs = append(viteCliargs, "--")
+		}
+	}
+	viteCliargs = append(viteCliargs, "--template", opts.Framework)
+
+	cmd := exec.Command(viteCliargs[0], viteCliargs[1:]...)
 	cmd.Dir = opts.AppsDir()
 
-	// Attach standard output and standard error for logging
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// Attach standard output and standard error for logging if debug is enabled
+	if opts.Debug {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
 
 	// Execute the command
 	err := cmd.Run()
