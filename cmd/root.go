@@ -45,6 +45,7 @@ type Project struct {
 	ZendeskLocation string
 	Tailwind        bool
 	Debug           bool
+	PackageManager  string
 
 	selectedListItem  string
 	selectedInputItem string
@@ -70,6 +71,11 @@ func createProject(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
+	pkgManager, err := cmd.Flags().GetString("pkg-manager")
+	if err != nil {
+		panic(err)
+	}
+
 	location, err := cmd.Flags().GetString("location")
 	if err != nil {
 		panic(err)
@@ -87,6 +93,7 @@ func createProject(cmd *cobra.Command, args []string) {
 
 	proj.Name = name
 	proj.Framework = framework
+	proj.PackageManager = pkgManager
 	proj.ZendeskLocation = location
 	proj.Tailwind = tailwind
 	proj.Debug = debug
@@ -101,6 +108,7 @@ func createProject(cmd *cobra.Command, args []string) {
 	fmt.Println("Project framework: ", proj.Framework)
 	fmt.Println("Project location: ", proj.ZendeskLocation)
 	fmt.Println("Project tailwind: ", proj.Tailwind)
+	fmt.Println("Project package manager: ", proj.PackageManager)
 	fmt.Println("Project debug: ", proj.Debug)
 }
 
@@ -154,6 +162,19 @@ func (p *Project) promptFramework() {
 	p.resetSelectedListItem()
 }
 
+func (p *Project) promptPackageManager() {
+	p.promptList(
+		"Which package manager would you like to use? (only npm and pnpm are supported at the moment)",
+		[]list.Item{
+			item("npm"),
+			item("pnpm"),
+		},
+		"Choosen one: %s! Almost over 🔥\n",
+	)
+	p.PackageManager = p.selectedListItem
+	p.resetSelectedListItem()
+}
+
 func (p *Project) promptTailwind() {
 	p.promptList(
 		"Would you like to use Tailwind CSS?",
@@ -182,6 +203,10 @@ func createPrompts(p *Project) error {
 		p.promptFramework()
 	}
 
+	if p.PackageManager == "" {
+		p.promptPackageManager()
+	}
+
 	if p.Tailwind == false {
 		p.promptTailwind()
 	}
@@ -202,6 +227,7 @@ func init() {
 	rootCmd.Flags().StringP("name", "n", "", "Name of the project")
 	rootCmd.Flags().StringP("framework", "f", "", "Frontend framework to use")
 	rootCmd.Flags().StringP("location", "l", "", "Location of Zendesk App")
+	rootCmd.Flags().StringP("pkg-manager", "p", "", "Package manager (npm or pnpm only at the moment)")
 	rootCmd.Flags().BoolP("tailwind", "t", false, "Use Tailwind CSS")
 	rootCmd.Flags().Bool("debug", false, "Debug mode")
 }
