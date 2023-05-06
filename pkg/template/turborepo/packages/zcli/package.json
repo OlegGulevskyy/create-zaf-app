@@ -1,0 +1,17 @@
+{
+	"name": "zcli",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"build": "ENV=prod node scripts/build.mjs",
+		"dev": "ENV=local node scripts/build.mjs local ticket_sidebar nav_bar && zcli apps:server dist",
+		"package": "zcli apps:package dist"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"fs-extra": "^10.1.0"
+	}
+}

@@ -1,0 +1,6 @@
+{
+	"location": "nav_bar",
+	"server_side": true,
+	"production_url": "https://link-turbo-zd.vercel.app",
+	"dev_url": "http://localhost:3003"
+}

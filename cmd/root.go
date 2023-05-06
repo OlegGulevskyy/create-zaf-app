@@ -25,6 +25,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/OlegGulevskyy/create-zaf-app/internal/options"
+	"github.com/OlegGulevskyy/create-zaf-app/pkg/template/turborepo"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/spf13/cobra"
 )
@@ -39,28 +41,23 @@ var rootCmd = &cobra.Command{
 	Run:   createProject,
 }
 
-type Project struct {
-	Name            string
-	Framework       string
-	ZendeskLocation string
-	Tailwind        bool
-	Debug           bool
-	PackageManager  string
+type Config struct {
+	options.Project
 
 	selectedListItem  string
 	selectedInputItem string
 }
 
-func (p *Project) resetSelectedListItem() {
-	p.selectedListItem = ""
+func (c *Config) resetSelectedListItem() {
+	c.selectedListItem = ""
 }
 
-func (p *Project) resetSelectedInputItem() {
-	p.selectedInputItem = ""
+func (c *Config) resetSelectedInputItem() {
+	c.selectedInputItem = ""
 }
 
-func createProject(cmd *cobra.Command, args []string) {
-	proj := Project{}
+func projectConfig(cmd *cobra.Command) *Config {
+	projConfig := Config{}
 	name, err := cmd.Flags().GetString("name")
 	if err != nil {
 		panic(err)
@@ -91,18 +88,25 @@ func createProject(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
-	proj.Name = name
-	proj.Framework = framework
-	proj.PackageManager = pkgManager
-	proj.ZendeskLocation = location
-	proj.Tailwind = tailwind
-	proj.Debug = debug
+	projConfig.Name = name
+	projConfig.Framework = framework
+	projConfig.PackageManager = pkgManager
+	projConfig.ZendeskLocation = location
+	projConfig.Tailwind = tailwind
+	projConfig.Debug = debug
 
 	// if any of the flags are set, skip the prompts, otherwise prompt the user
-	err = createPrompts(&proj)
+	err = createPrompts(&projConfig)
 	if err != nil {
 		panic(err)
 	}
+
+	return &projConfig
+}
+
+func createProject(cmd *cobra.Command, args []string) {
+	// get project choices config - either from flags or from prompts
+	proj := projectConfig(cmd)
 
 	fmt.Println("Project name: ", proj.Name)
 	fmt.Println("Project framework: ", proj.Framework)
@@ -110,10 +114,22 @@ func createProject(cmd *cobra.Command, args []string) {
 	fmt.Println("Project tailwind: ", proj.Tailwind)
 	fmt.Println("Project package manager: ", proj.PackageManager)
 	fmt.Println("Project debug: ", proj.Debug)
+
+	projConfig := options.Project{
+		Name:            proj.Name,
+		Framework:       proj.Framework,
+		ZendeskLocation: proj.ZendeskLocation,
+		Tailwind:        proj.Tailwind,
+		PackageManager:  proj.PackageManager,
+		Debug:           proj.Debug,
+	}
+
+	turborepo.Create(&projConfig)
+
 }
 
-func (p *Project) promptZendeskLocation() {
-	p.promptList(
+func (c *Config) promptZendeskLocation() {
+	c.promptList(
 		"Where would you like your application to run?",
 		[]list.Item{
 			item("Ticket sidebar"),
@@ -128,23 +144,23 @@ func (p *Project) promptZendeskLocation() {
 		},
 		"You chose: %s! No problems 💪\n",
 	)
-	p.ZendeskLocation = p.selectedListItem
-	p.resetSelectedListItem()
+	c.ZendeskLocation = c.selectedListItem
+	c.resetSelectedListItem()
 }
 
-func (p *Project) promptName() {
-	p.promptInput(
+func (c *Config) promptName() {
+	c.promptInput(
 		promptInputProps{
 			placeholder: "my-zendesk-app",
 			title:       "What would you like to name your project?",
 		},
 	)
-	p.Name = p.selectedInputItem
-	p.resetSelectedInputItem()
+	c.Name = c.selectedInputItem
+	c.resetSelectedInputItem()
 }
 
-func (p *Project) promptFramework() {
-	p.promptList(
+func (c *Config) promptFramework() {
+	c.promptList(
 		"Which framework would you like to use?",
 		[]list.Item{
 			item("react"),
@@ -158,12 +174,12 @@ func (p *Project) promptFramework() {
 		},
 		"Choosen one: %s! Almost over 🔥\n",
 	)
-	p.Framework = p.selectedListItem
-	p.resetSelectedListItem()
+	c.Framework = c.selectedListItem
+	c.resetSelectedListItem()
 }
 
-func (p *Project) promptPackageManager() {
-	p.promptList(
+func (c *Config) promptPackageManager() {
+	c.promptList(
 		"Which package manager would you like to use? (only npm and pnpm are supported at the moment)",
 		[]list.Item{
 			item("npm"),
@@ -171,12 +187,12 @@ func (p *Project) promptPackageManager() {
 		},
 		"Choosen one: %s! Almost over 🔥\n",
 	)
-	p.PackageManager = p.selectedListItem
-	p.resetSelectedListItem()
+	c.PackageManager = c.selectedListItem
+	c.resetSelectedListItem()
 }
 
-func (p *Project) promptTailwind() {
-	p.promptList(
+func (c *Config) promptTailwind() {
+	c.promptList(
 		"Would you like to use Tailwind CSS?",
 		[]list.Item{
 			item("Yes"),
@@ -184,31 +200,31 @@ func (p *Project) promptTailwind() {
 		},
 		"Answered: %s! 🎉\n",
 	)
-	p.Tailwind = p.selectedListItem == "Yes"
-	p.resetSelectedListItem()
+	c.Tailwind = c.selectedListItem == "Yes"
+	c.resetSelectedListItem()
 }
 
-func createPrompts(p *Project) error {
+func createPrompts(c *Config) error {
 	// prompt user to define projects name
-	if p.Name == "" {
-		p.promptName()
+	if c.Name == "" {
+		c.promptName()
 	}
 
-	if p.ZendeskLocation == "" {
-		p.promptZendeskLocation()
+	if c.ZendeskLocation == "" {
+		c.promptZendeskLocation()
 	}
 
 	// prompt user which framework to use
-	if p.Framework == "" {
-		p.promptFramework()
+	if c.Framework == "" {
+		c.promptFramework()
 	}
 
-	if p.PackageManager == "" {
-		p.promptPackageManager()
+	if c.PackageManager == "" {
+		c.promptPackageManager()
 	}
 
-	if p.Tailwind == false {
-		p.promptTailwind()
+	if c.Tailwind == false {
+		c.promptTailwind()
 	}
 
 	return nil

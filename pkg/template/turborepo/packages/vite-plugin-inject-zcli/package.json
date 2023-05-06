@@ -1,0 +1,10 @@
+{
+	"name": "vite-plugin-inject-zcli",
+	"type": "module",
+	"version": "0.0.0",
+	"main": "./index.js",
+	"license": "MIT",
+	"scripts": {
+		"lint": "eslint \"**/*.js*\""
+	}
+}

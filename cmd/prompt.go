@@ -54,7 +54,7 @@ type modelList struct {
 	choice   string
 	confirm  string
 	quitting bool
-	project  *Project
+	config  *Config
 }
 
 func (m modelList) Init() tea.Cmd {
@@ -77,7 +77,7 @@ func (m modelList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			i, ok := m.list.SelectedItem().(item)
 			if ok {
 				m.choice = string(i)
-				m.project.selectedListItem = m.choice
+				m.config.selectedListItem = m.choice
 			}
 			return m, tea.Quit
 		}
@@ -98,7 +98,7 @@ func (m modelList) View() string {
 	return "\n" + m.list.View()
 }
 
-func (p *Project) promptList(title string, items []list.Item, confirmMessage string) {
+func (c *Config) promptList(title string, items []list.Item, confirmMessage string) {
 	const defaultWidth = 20
 	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
 	l.Title = title
@@ -108,7 +108,7 @@ func (p *Project) promptList(title string, items []list.Item, confirmMessage str
 	l.Styles.PaginationStyle = paginationStyle
 	l.Styles.HelpStyle = helpStyle
 
-	m := modelList{list: l, project: p, confirm: confirmMessage}
+	m := modelList{list: l, config: c, confirm: confirmMessage}
 
 	if _, err := tea.NewProgram(m).Run(); err != nil {
 		fmt.Println("Error running program:", err)

@@ -13,7 +13,7 @@ type promptInputProps struct {
 	title       string
 }
 
-func (p *Project) promptInput(props promptInputProps) {
+func (p *Config) promptInput(props promptInputProps) {
 	initialModel := initialModel(props.placeholder)
 	initialModel.project = p
 	initialModel.title = props.title
@@ -32,7 +32,7 @@ type modelInput struct {
 	textInput textinput.Model
 	title     string
 	err       error
-	project   *Project
+	project   *Config
 }
 
 func initialModel(placeholder string) modelInput {

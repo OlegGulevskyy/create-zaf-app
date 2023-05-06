@@ -1,0 +1,24 @@
+{
+  "name": "Vite Boilerplate",
+  "author": {
+    "name": "OlegGulevskyy",
+    "email": "oleggulevskyy@gmail.com",
+    "url": "https://github.com/OlegGulevskyy/zendesk-vite-boilerplate"
+  },
+  "defaultLocale": "en",
+  "private": true,
+  "location": {
+    "support": {
+      "ticket_sidebar": {
+        "url": "assets/ticket_sidebar/index.html",
+        "size": {
+          "height": "500px",
+          "width": "340px"
+        },
+        "flexible": true
+      }
+    }
+  },
+  "version": "1.0.0",
+  "frameworkVersion": "2.0"
+}
