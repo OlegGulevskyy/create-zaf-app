@@ -1,40 +1,22 @@
 package npm
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
+
+	fsutils "github.com/OlegGulevskyy/create-zaf-app/pkg/fs-utils"
 )
 
 // Update existing manifest JSON to include workspaces property
-func UpdateManifestJson(path string) error {
-	// Read the JSON file content
-	content, err := ioutil.ReadFile(path)
+func AddWorkspacesToPackageJson(path string) error {
+	jsonData, err := fsutils.GetJsonFromFile(path)
 	if err != nil {
-		return fmt.Errorf("error reading file: %w", err)
-	}
-
-	// Parse the JSON content into a map
-	var jsonData map[string]interface{}
-	err = json.Unmarshal(content, &jsonData)
-	if err != nil {
-		return fmt.Errorf("error parsing JSON: %w", err)
+		return fmt.Errorf("error getting JSON from file: %w", err)
 	}
 
 	// Add the key-value pair to the map
 	jsonData["workspaces"] = []string{"apps/*", "packages/*"}
 
-	// Convert the map back to JSON
-	modifiedContent, err := json.MarshalIndent(jsonData, "", "  ")
-	if err != nil {
-		return fmt.Errorf("error converting JSON to bytes: %w", err)
-	}
-
-	// Write the modified JSON back to the file
-	err = ioutil.WriteFile(path, modifiedContent, 0644)
-	if err != nil {
-		return fmt.Errorf("error writing to file: %w", err)
-	}
+	fsutils.WriteJsonToFile(jsonData, path)
 
 	return nil
 

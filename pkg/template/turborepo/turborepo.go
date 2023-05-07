@@ -40,7 +40,7 @@ func setWorkspacesRc(opts *options.Project) {
 		pnpm.CreateWorkspaceRcFile(opts)
 	} else if opts.PackageManager == "npm" {
 		packageJsonPath := path.Join(opts.TargetDir(), "package.json")
-		npm.UpdateManifestJson(packageJsonPath)
+		npm.AddWorkspacesToPackageJson(packageJsonPath)
 	}
 }
 
