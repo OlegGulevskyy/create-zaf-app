@@ -6,10 +6,12 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 
 	"github.com/OlegGulevskyy/create-zaf-app/internal/options"
 	"github.com/OlegGulevskyy/create-zaf-app/pkg/env"
 	fsutils "github.com/OlegGulevskyy/create-zaf-app/pkg/fs-utils"
+	"github.com/OlegGulevskyy/create-zaf-app/pkg/template/shared/npm"
 	"github.com/OlegGulevskyy/create-zaf-app/pkg/template/shared/pnpm"
 
 	"github.com/leaanthony/gosod"
@@ -30,13 +32,15 @@ func Create(options *options.Project) {
 	fsutils.CreateFolderIfNotExists(options.AppsDir())
 
 	executeViteCli(options)
-	// setWorkspacesRc(options)
+	setWorkspacesRc(options)
 }
 
 func setWorkspacesRc(opts *options.Project) {
 	if opts.PackageManager == "pnpm" {
 		pnpm.CreateWorkspaceRcFile(opts)
 	} else if opts.PackageManager == "npm" {
+		packageJsonPath := path.Join(opts.TargetDir(), "package.json")
+		npm.UpdateManifestJson(packageJsonPath)
 	}
 }
 
