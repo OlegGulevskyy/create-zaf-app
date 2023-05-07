@@ -1,0 +1,6 @@
+{
+	"location": "{{ .ZendeskLocationSanitized }}",
+	"server_side": true,
+	"production_url": "{{ .ProductionUrl }}",
+	"dev_url": "{{ .DevUrl }}"
+}

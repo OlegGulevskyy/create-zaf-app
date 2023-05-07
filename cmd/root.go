@@ -115,14 +115,17 @@ func createProject(cmd *cobra.Command, args []string) {
 	// get project choices config - either from flags or from prompts
 	proj := projectConfig(cmd)
 	projConfig := options.Project{
-		Name:                   proj.Name,
-		Framework:              proj.Framework,
-		ZendeskLocation:        proj.ZendeskLocation,
-		Tailwind:               proj.Tailwind,
-		PackageManager:         proj.PackageManager,
-		PackageManagerVersion:  proj.PackageManagerVersion,
-		WorkspacePackageSyntax: proj.WorkspacePackageSyntax,
-		Debug:                  proj.Debug,
+		Name:                     proj.Name,
+		Framework:                proj.Framework,
+		ZendeskLocation:          proj.ZendeskLocation,
+		Tailwind:                 proj.Tailwind,
+		PackageManager:           proj.PackageManager,
+		PackageManagerVersion:    proj.PackageManagerVersion,
+		WorkspacePackageSyntax:   proj.WorkspacePackageSyntax,
+		ZendeskLocationSanitized: proj.GetZendeskLocation(),
+		ProductionUrl:            proj.GetProductionUrl(),
+		DevUrl:                   proj.GetDevUrl(),
+		Debug:                    proj.Debug,
 	}
 
 	turborepo.Create(&projConfig)
