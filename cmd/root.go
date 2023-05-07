@@ -26,6 +26,7 @@ import (
 	"os"
 
 	"github.com/OlegGulevskyy/create-zaf-app/internal/options"
+	"github.com/OlegGulevskyy/create-zaf-app/pkg/env"
 	"github.com/OlegGulevskyy/create-zaf-app/pkg/template/turborepo"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/spf13/cobra"
@@ -94,6 +95,11 @@ func projectConfig(cmd *cobra.Command) *Config {
 	projConfig.ZendeskLocation = location
 	projConfig.Tailwind = tailwind
 	projConfig.Debug = debug
+	projConfig.PackageManagerVersion = env.PkgManagerVersion(pkgManager).String()
+
+	if projConfig.Debug {
+		fmt.Printf("[root.go]: %+v", projConfig)
+	}
 
 	// if any of the flags are set, skip the prompts, otherwise prompt the user
 	err = createPrompts(&projConfig)
@@ -107,21 +113,14 @@ func projectConfig(cmd *cobra.Command) *Config {
 func createProject(cmd *cobra.Command, args []string) {
 	// get project choices config - either from flags or from prompts
 	proj := projectConfig(cmd)
-
-	fmt.Println("Project name: ", proj.Name)
-	fmt.Println("Project framework: ", proj.Framework)
-	fmt.Println("Project location: ", proj.ZendeskLocation)
-	fmt.Println("Project tailwind: ", proj.Tailwind)
-	fmt.Println("Project package manager: ", proj.PackageManager)
-	fmt.Println("Project debug: ", proj.Debug)
-
 	projConfig := options.Project{
-		Name:            proj.Name,
-		Framework:       proj.Framework,
-		ZendeskLocation: proj.ZendeskLocation,
-		Tailwind:        proj.Tailwind,
-		PackageManager:  proj.PackageManager,
-		Debug:           proj.Debug,
+		Name:                  proj.Name,
+		Framework:             proj.Framework,
+		ZendeskLocation:       proj.ZendeskLocation,
+		Tailwind:              proj.Tailwind,
+		PackageManager:        proj.PackageManager,
+		PackageManagerVersion: proj.PackageManagerVersion,
+		Debug:                 proj.Debug,
 	}
 
 	turborepo.Create(&projConfig)

@@ -6,11 +6,12 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strconv"
-	"strings"
 
 	"github.com/OlegGulevskyy/create-zaf-app/internal/options"
+	"github.com/OlegGulevskyy/create-zaf-app/pkg/env"
 	fsutils "github.com/OlegGulevskyy/create-zaf-app/pkg/fs-utils"
+	"github.com/OlegGulevskyy/create-zaf-app/pkg/template/shared/pnpm"
+
 	"github.com/leaanthony/gosod"
 )
 
@@ -22,24 +23,21 @@ import (
 var TurborepoStaticFiles embed.FS
 
 func Create(options *options.Project) {
-	fmt.Println("Creating turborepo project at", options)
+	fmt.Printf("[turborepo.go]: %+v", options)
 	g := gosod.New(TurborepoStaticFiles)
 	g.Extract(options.TargetDir(), options)
 
-	fmt.Println("Creating apps folder at", options.AppsDir())
 	fsutils.CreateFolderIfNotExists(options.AppsDir())
 
 	executeViteCli(options)
+	// setWorkspacesRc(options)
 }
 
-func npmVersion() string {
-	cmd := exec.Command("npm", "-v")
-	cmd.Dir = "./"
-	out, err := cmd.Output()
-	if err != nil {
-		log.Fatal(err)
+func setWorkspacesRc(opts *options.Project) {
+	if opts.PackageManager == "pnpm" {
+		pnpm.CreateWorkspaceRcFile(opts)
+	} else if opts.PackageManager == "npm" {
 	}
-	return string(out)
 }
 
 func executeViteCli(opts *options.Project) {
@@ -57,14 +55,10 @@ func executeViteCli(opts *options.Project) {
 	}
 
 	if opts.PackageManager == "npm" {
-		npmV := npmVersion()
-		v := strings.Split(npmV, ".")[0]
-		vNum, err := strconv.ParseInt(v, 10, 32)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if vNum >= 7 {
+		npmV := env.PkgManagerVersion(opts.PackageManager)
+		if npmV.Major() >= 7 {
 			viteCliargs = append(viteCliargs, "--")
+
 		}
 	}
 	viteCliargs = append(viteCliargs, "--template", opts.Framework)
