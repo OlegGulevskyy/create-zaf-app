@@ -18,3 +18,14 @@ func PkgManagerVersion(pkgManager string) *semver.Version {
 	}
 	return v
 }
+
+func WorkspacePackageSyntax(pkgManager string) string {
+	if pkgManager == "pnpm" {
+		return "workspace:*"
+	}
+	if pkgManager == "npm" {
+		return "*"
+	}
+
+	return "*"
+}

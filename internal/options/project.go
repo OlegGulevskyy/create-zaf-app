@@ -6,13 +6,14 @@ import (
 )
 
 type Project struct {
-	Name                  string
-	Framework             string
-	ZendeskLocation       string
-	Tailwind              bool
-	Debug                 bool
-	PackageManager        string
-	PackageManagerVersion string
+	Name                   string
+	Framework              string
+	ZendeskLocation        string
+	Tailwind               bool
+	Debug                  bool
+	PackageManager         string
+	PackageManagerVersion  string
+	WorkspacePackageSyntax string
 
 	selectedListItem  string
 	selectedInputItem string
