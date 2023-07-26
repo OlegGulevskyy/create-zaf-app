@@ -12,14 +12,12 @@ tasks:
       - git add *;
       - git commit -m "{{ (split " " .CLI_ARGS)._0 }}"
 
-
   minor:
     dir: npm
     cmds:
       - npm version minor
       - git add *;
       - git commit -m "{{ (split " " .CLI_ARGS)._0 }}"
-
 
   major:
     dir: npm
