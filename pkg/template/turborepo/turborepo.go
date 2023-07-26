@@ -51,7 +51,7 @@ func executeViteCli(opts *options.Project) {
 		viteCliEntryPoint = "vite@latest"
 	}
 
-	viteCliargs := []string{
+	viteClIArgs := []string{
 		opts.PackageManager,
 		"create",
 		viteCliEntryPoint,
@@ -61,13 +61,13 @@ func executeViteCli(opts *options.Project) {
 	if opts.PackageManager == "npm" {
 		npmV := env.PkgManagerVersion(opts.PackageManager)
 		if npmV.Major() >= 7 {
-			viteCliargs = append(viteCliargs, "--")
+			viteClIArgs = append(viteClIArgs, "--")
 
 		}
 	}
-	viteCliargs = append(viteCliargs, "--template", opts.Framework)
+	viteClIArgs = append(viteClIArgs, "--template", opts.Framework)
 
-	cmd := exec.Command(viteCliargs[0], viteCliargs[1:]...)
+	cmd := exec.Command(viteClIArgs[0], viteClIArgs[1:]...)
 	cmd.Dir = opts.AppsDir()
 
 	// Attach standard output and standard error for logging if debug is enabled

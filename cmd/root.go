@@ -95,7 +95,13 @@ func projectConfig(cmd *cobra.Command) *Config {
 	projConfig.ZendeskLocation = location
 	projConfig.Tailwind = tailwind
 	projConfig.Debug = debug
-	projConfig.PackageManagerVersion = env.PkgManagerVersion(pkgManager).String()
+
+	// if it was passed by CLI args, use it, otherwise do not instantiate it
+	pkgVersion := env.PkgManagerVersion(pkgManager)
+	if pkgVersion != nil {
+		projConfig.PackageManagerVersion = env.PkgManagerVersion(pkgManager).String()
+	}
+
 	projConfig.WorkspacePackageSyntax = env.WorkspacePackageSyntax(pkgManager)
 
 	if projConfig.Debug {

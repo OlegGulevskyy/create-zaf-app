@@ -11,6 +11,10 @@ import (
 func PkgManagerVersion(pkgManager string) *semver.Version {
 	cmd := exec.Command(pkgManager, "-v")
 	out, err := cmd.Output()
+	if string(out) == "" {
+		return nil
+	}
+
 	strOut := strings.Trim(string(out), "\n")
 	v := semver.MustParse(strOut)
 	if err != nil {
